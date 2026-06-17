@@ -7,6 +7,25 @@ class Scanner
     private int start = 0;
     private int current = 0;
     private int line = 1;
+    private static readonly Dictionary<string, TokenType> keywords =
+    new Dictionary<string, TokenType> {
+       {"and", AND},
+       {"class", CLASS},
+       {"else", ELSE},
+       {"false",  FALSE},
+       {"for",    FOR},
+       {"fun",    FUN},
+       {"if",     IF},
+       {"nil",    NIL},
+       {"or",     OR},
+       {"print",  PRINT},
+       {"return", RETURN},
+       {"super",  SUPER},
+       {"this",   THIS},
+       {"true",   TRUE},
+       {"var",    VAR},
+       {"while",  WHILE}
+    };
 
     public Scanner(string source)
     {
@@ -71,10 +90,66 @@ class Scanner
             case '\n':
                 line++;
                 break;
+
+            case '"': TokenizeString(); break;
+
             default:
-                Lox.Error(line, $"Unexpected character '{c}'.");
+                if(IsDigit(c))
+                {
+                    TokenizeNumber();    
+                } else if (IsAlpha(c)) 
+                {
+                    TokenizeIdentifier();    
+                } else
+                {
+                    Lox.Error(line, $"Unexpected character '{c}'.");
+                }
                 break;
         };
+    }
+
+    private void TokenizeIdentifier()
+    {
+        while (IsAlphanumeric(Peek())) Advance();
+
+        string text = source[start..current];
+        bool isKeyword = keywords.TryGetValue(text, out var type);
+        if (!isKeyword) type = IDENTIFIER;
+        AddToken(type);
+    }
+
+    private void TokenizeNumber()
+    {
+        while(IsDigit(Peek())) Advance();
+
+        if (Peek() == '.' && IsDigit(PeekNext()))
+        {
+            // Consume the decimal point
+            Advance();
+            
+            while(IsDigit(Peek())) Advance();
+        }
+
+        AddToken(NUMBER, double.Parse(source[start..current]));
+    }
+
+    private void TokenizeString()
+    {
+        while (Peek() != '"' && !IsAtEnd())
+        {
+            if (Peek() == '\n') line++;
+            Advance();
+        }
+
+        if (IsAtEnd())
+        {
+            Lox.Error(line, "Unterminated string.");
+            return;
+        }
+
+        Advance();
+        string value = source[(start + 1)..(current-1)];
+        AddToken(STRING, value);
     }
 
     private bool Match(char expected)
@@ -92,6 +167,29 @@ class Scanner
         return source[current];
     }
 
+    private char PeekNext()
+    {
+        if (current + 1 >= source.Length) return '\0';
+        return source[current + 1];
+    }
+
+    private bool IsAlpha(char c)
+    {
+        return (c >= 'a' && c <= 'z') || 
+               (c >= 'A' && c <= 'Z') || 
+                c == '_';
+    } 
+
+    private bool IsAlphanumeric(char c)
+    {
+        return IsAlpha(c) || IsDigit(c);
+    }
+
+    private bool IsDigit(char c)
+    {
+        return c >= '0' && c <= '9';
+    }
+
     private bool IsAtEnd()
     {
         return current >= source.Length;
@@ -107,9 +205,9 @@ class Scanner
         AddToken(type, null);
     }
 
-    private void AddToken(TokenType type, Object literal)
+    private void AddToken(TokenType type, Object? literal)
     {
-        string text = source.Substring(start, current);
+        string text = source[start..current];
         tokens.Add(new Token(type, text, literal, line));
     }
 }
