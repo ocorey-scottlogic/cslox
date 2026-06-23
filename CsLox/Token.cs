@@ -1,15 +1,15 @@
 
 namespace CsLox;
 
-class Token(TokenType type, String lexeme, Object? literal, int line)
+public class Token(TokenType type, String lexeme, Object? literal, int line)
 {
-    readonly TokenType Type = type;
-    readonly string Lexeme = lexeme;
-    readonly Object? Literal = literal;
-    readonly int Line = line;
+    public TokenType Type { get; } = type;
+    public string Lexeme { get; } = lexeme;
+    public Object? Literal { get; } = literal;
+    public int Line { get; } = line;
 
     public override string ToString()
     {
-        return $"{type} {Lexeme} {Literal}";
+        return $"{Type} {Lexeme} {Literal}";
     }
 }
