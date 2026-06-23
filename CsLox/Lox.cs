@@ -32,7 +32,7 @@ public class Lox
         while (true)
         {
             Console.WriteLine("cslox > ");
-            string line = Console.ReadLine();
+            string? line = Console.ReadLine();
             if (line is null) break;
             Run(line);
             hadError = false;
@@ -44,10 +44,12 @@ public class Lox
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.ScanTokens();
 
-        foreach (var token in tokens)
-        {
-            Console.WriteLine(token);
-        }
+        Parser parser = new Parser(tokens);
+        Expr? expression = parser.Parse();
+
+        if (hadError) return;
+
+        Console.WriteLine(new AstPrinter().Print(expression!));
     }
 
    public static void Error(int line, string message)
@@ -59,5 +61,16 @@ public class Lox
     {
         Console.Error.WriteLine($"[line {line}] Error {where}: {message}");
         hadError = true;
+    }
+
+    public static void Error(Token token, string message)
+    {
+        if (token.Type == TokenType.EOF)
+        {
+            Report(token.Line, " at end", message);
+        } else
+        {
+            Report(token.Line, " at '"  + token.Lexeme + "'", message);
+        }
     }
 }

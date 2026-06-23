@@ -32,7 +32,7 @@ public abstract class Expr {
     public Expr Expression { get; }
   }
  public class Literal : Expr {
-    public Literal(Object Value) {
+    public Literal(Object? Value) {
         this.Value = Value;
     }
     public override TResult Accept<TResult>(IVisitor<TResult> visitor) {

@@ -1,11 +1,10 @@
-using System.ComponentModel;
 using System.Text;
 
 namespace CsLox;
 
 public class AstPrinter : Expr.IVisitor<string>
 {
-    string Print(Expr expr)
+    public string Print(Expr expr)
     {
         return expr.Accept(this);
     }
