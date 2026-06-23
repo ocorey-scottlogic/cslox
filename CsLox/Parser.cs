@@ -16,6 +16,7 @@ public class Parser(List<Token> tokens)
         }
         catch (ParseError)
         {
+            Console.Error.WriteLine("Parse error");
             return null;
         }
     }
@@ -29,15 +30,32 @@ public class Parser(List<Token> tokens)
 
     Expr Comma()
     {
-        Expr expr = Equality();
+        Expr expr = Ternary();
 
         while (Match(COMMA))
         {
             Token operatorToken = Previous();
-            Expr right = Equality();
+            Expr right = Ternary();
             expr = new Expr.Binary(expr, operatorToken, right);
         }
         
+        return expr;
+    }
+
+    Expr Ternary()
+    {
+        Expr expr = Equality();
+
+        if (Match(QUESTION))
+        {
+            Token operatorToken = Previous();
+            
+            Expr middle = Equality();
+            Consume(COLON, "Expect ':' after conditional operator.");
+            Expr right = Ternary();
+
+            expr = new Expr.Ternary(expr, operatorToken, middle, right);
+        }
         return expr;
     }
 

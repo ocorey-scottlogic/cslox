@@ -31,7 +31,7 @@ public class Lox
     {
         while (true)
         {
-            Console.WriteLine("cslox > ");
+            Console.Write("cslox > ");
             string? line = Console.ReadLine();
             if (line is null) break;
             Run(line);

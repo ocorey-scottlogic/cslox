@@ -28,6 +28,11 @@ public class AstPrinter : Expr.IVisitor<string>
         return Parenthesize(expr.OperatorToken.Lexeme, expr.Right);
     }
 
+    public string VisitTernaryExpr(Expr.Ternary expr)
+    {
+        return Parenthesize(expr.OperatorToken.Lexeme, expr.Left, expr.Middle, expr.Right);
+    }
+
     private string Parenthesize(string name, params Expr[] exprs)
     {
         var builder = new StringBuilder();

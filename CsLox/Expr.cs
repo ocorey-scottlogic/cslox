@@ -6,6 +6,7 @@ public abstract class Expr {
     public TResult VisitGroupingExpr(Grouping expr);
     public TResult VisitLiteralExpr(Literal expr);
     public TResult VisitUnaryExpr(Unary expr);
+    public TResult VisitTernaryExpr(Ternary expr);
   }
  public class Binary : Expr {
     public Binary(Expr Left, Token OperatorToken, Expr Right) {
@@ -51,6 +52,22 @@ public abstract class Expr {
     }
 
     public Token OperatorToken { get; }
+    public Expr Right { get; }
+  }
+ public class Ternary : Expr {
+    public Ternary(Expr Left, Token OperatorToken, Expr Middle, Expr Right) {
+        this.Left = Left;
+        this.OperatorToken = OperatorToken;
+        this.Middle = Middle;
+        this.Right = Right;
+    }
+    public override TResult Accept<TResult>(IVisitor<TResult> visitor) {
+      return visitor.VisitTernaryExpr(this);
+    }
+
+    public Expr Left { get; }
+    public Token OperatorToken { get; }
+    public Expr Middle { get; }
     public Expr Right { get; }
   }
 
